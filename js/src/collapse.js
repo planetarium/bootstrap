@@ -76,11 +76,14 @@ class Collapse extends BaseComponent {
 
     toggleList.forEach(elem => {
       const selector = getSelectorFromElement(elem)
+      if (!selector) {
+        return
+      }
+
       const filterElement = SelectorEngine.find(selector)
         .filter(foundElem => foundElem === this._element)
 
-      if (selector !== null && filterElement.length) {
-        this._selector = selector
+      if (filterElement.length) {
         this._triggerArray.push(elem)
       }
     })
@@ -129,9 +132,8 @@ class Collapse extends BaseComponent {
       actives = SelectorEngine.find(SELECTOR_ACTIVES, this._parent).filter(elem => !children.includes(elem)) // remove children if greater depth
     }
 
-    const container = SelectorEngine.findOne(this._selector)
     if (actives.length) {
-      const tempActiveData = actives.find(elem => container !== elem)
+      const tempActiveData = actives.find(elem => this._element !== elem)
       activesData = tempActiveData ? Collapse.getInstance(tempActiveData) : null
 
       if (activesData && activesData._isTransitioning) {
@@ -145,7 +147,7 @@ class Collapse extends BaseComponent {
     }
 
     actives.forEach(elemActive => {
-      if (container !== elemActive) {
+      if (this._element !== elemActive) {
         Collapse.collapseInterface(elemActive, 'hide')
       }
 
