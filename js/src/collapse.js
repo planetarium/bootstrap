@@ -32,12 +32,12 @@ const DATA_API_KEY = '.data-api'
 
 const Default = {
   toggle: true,
-  parent: ''
+  parent: null
 }
 
 const DefaultType = {
   toggle: 'boolean',
-  parent: '(string|element)'
+  parent: '(null|element)'
 }
 
 const EVENT_SHOW = `show${EVENT_KEY}`
@@ -88,7 +88,7 @@ class Collapse extends BaseComponent {
       }
     })
 
-    this._parent = this._config.parent ? this._getParent() : null
+    this._initializeChildren()
 
     if (!this._config.parent) {
       this._addAriaAndCollapsedClass(this._triggerArray, this._isShown())
@@ -127,9 +127,9 @@ class Collapse extends BaseComponent {
     let actives = []
     let activesData
 
-    if (this._parent) {
-      const children = SelectorEngine.find(`.${CLASS_NAME_COLLAPSE} .${CLASS_NAME_COLLAPSE}`, this._parent)
-      actives = SelectorEngine.find(SELECTOR_ACTIVES, this._parent).filter(elem => !children.includes(elem)) // remove children if greater depth
+    if (this._config.parent) {
+      const children = SelectorEngine.find(`.${CLASS_NAME_COLLAPSE} .${CLASS_NAME_COLLAPSE}`, this._config.parent)
+      actives = SelectorEngine.find(SELECTOR_ACTIVES, this._config.parent).filter(elem => !children.includes(elem)) // remove children if greater depth
     }
 
     if (actives.length) {
@@ -238,6 +238,7 @@ class Collapse extends BaseComponent {
       ...config
     }
     config.toggle = Boolean(config.toggle) // Coerce string values
+    config.parent = getElement(config.parent)
     typeCheckConfig(NAME, config, DefaultType)
     return config
   }
@@ -246,22 +247,19 @@ class Collapse extends BaseComponent {
     return this._element.classList.contains(CLASS_NAME_HORIZONTAL) ? WIDTH : HEIGHT
   }
 
-  _getParent() {
-    let { parent } = this._config
+  _initializeChildren() {
+    if (!this._config.parent) {
+      return
+    }
 
-    parent = getElement(parent)
-
-    const selector = `${SELECTOR_DATA_TOGGLE}[data-bs-parent="${parent}"]`
-
-    SelectorEngine.find(selector, parent)
+    const children = SelectorEngine.find(`.${CLASS_NAME_COLLAPSE} .${CLASS_NAME_COLLAPSE}`, this._config.parent)
+    SelectorEngine.find(SELECTOR_DATA_TOGGLE, this._config.parent).filter(elem => !children.includes(elem))
       .forEach(element => {
         const selected = getElementFromSelector(element)
         if (selected) {
           this._addAriaAndCollapsedClass([element], this._isShown(selected))
         }
       })
-
-    return parent
   }
 
   _addAriaAndCollapsedClass(triggerArray, isOpen) {
