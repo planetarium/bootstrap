@@ -272,7 +272,7 @@ class Tooltip extends BaseComponent {
 
     tip.classList.add(CLASS_NAME_SHOW)
 
-    const customClass = typeof this._config.customClass === 'function' ? this._config.customClass() : this._config.customClass
+    const customClass = this._parseMaybeFunction(this._config.customClass)
     if (customClass) {
       tip.classList.add(...customClass.split(' '))
     }
@@ -415,13 +415,7 @@ class Tooltip extends BaseComponent {
   getTitle() {
     let title = this._element.getAttribute('data-bs-original-title')
 
-    if (!title) {
-      title = typeof this._config.title === 'function' ?
-        this._config.title.call(this._element) :
-        this._config.title
-    }
-
-    return title
+    return this._parseMaybeFunction(title)
   }
 
   updateAttachment(attachment) {
@@ -454,6 +448,10 @@ class Tooltip extends BaseComponent {
     }
 
     return offset
+  }
+
+  _parseMaybeFunction(content) {
+    return typeof content === 'function' ? content.call(this._element) : content
   }
 
   _getPopperConfig(attachment) {
