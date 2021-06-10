@@ -370,7 +370,10 @@ class Tooltip extends BaseComponent {
     const element = document.createElement('div')
     element.innerHTML = this._config.template
 
-    this.tip = element.children[0]
+    const tip = element.children[0]
+    tip.classList.remove(CLASS_NAME_FADE, CLASS_NAME_SHOW)
+
+    this.tip = tip
     return this.tip
   }
 
@@ -401,11 +404,11 @@ class Tooltip extends BaseComponent {
       return
     }
 
-    if (this._config.html) {
-      if (this._config.sanitize) {
-        content = sanitizeHtml(content, this._config.allowList, this._config.sanitizeFn)
-      }
+    if (this._config.sanitize) {
+      content = sanitizeHtml(content, this._config.allowList, this._config.sanitizeFn)
+    }
 
+    if (this._config.html) {
       element.innerHTML = content
     } else {
       element.textContent = content
@@ -413,7 +416,7 @@ class Tooltip extends BaseComponent {
   }
 
   getTitle() {
-    let title = this._element.getAttribute('data-bs-original-title')
+    const title = this._element.getAttribute('data-bs-original-title') || this._config.title
 
     return this._parseMaybeFunction(title)
   }
