@@ -683,17 +683,9 @@ class Tooltip extends BaseComponent {
   }
 
   _getDelegateConfig() {
-    const config = {}
+    const keysWithDifferentValues = Object.entries(this._config).filter(entry => this.constructor.Default[entry[0]] !== this._config[entry[0]])
 
-    if (this._config) {
-      for (const key in this._config) {
-        if (this.constructor.Default[key] !== this._config[key]) {
-          config[key] = this._config[key]
-        }
-      }
-    }
-
-    return config
+    return Object.fromEntries(keysWithDifferentValues)
   }
 
   _cleanTipClass() {
